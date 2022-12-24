@@ -14,7 +14,7 @@ const (
 	TimeFormat       string = "2006-01-02 15:04:05"
 )
 
-func Process(raw []byte, match map[string]string) []byte {
+func MapDataToTemplate(raw []byte, match map[string]string) []byte {
 	var processedString string
 
 	stringRepOfBytes := string(raw)
