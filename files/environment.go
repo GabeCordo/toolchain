@@ -43,7 +43,16 @@ func (environment *Environment) parse(path string) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		splitLine := strings.Split(line, DeclarationSeparator)
+
+		// ignore empty lines, or lines that are used only as comment lines
+		if (len(line) == 0) || ((len(line) > 0) && (line[0] == '#')) {
+			continue
+		}
+
+		// make sure there are at most 2 substrings generated from the split, this means that we should only
+		// split on the first occurrence of '=' and stop caring after that. This can be important if the rhs is
+		// a string or url that contains the = character
+		splitLine := strings.SplitN(line, DeclarationSeparator, 2)
 
 		if len(splitLine) != 2 {
 			panic(fmt.Sprintf("%s is not a valid environment declaration", line))
@@ -52,7 +61,8 @@ func (environment *Environment) parse(path string) {
 		lhs := splitLine[0]
 		runes := []rune(lhs)
 		for _, r := range runes {
-			if !unicode.IsLetter(r) && !(r != '_') {
+			if !unicode.IsLetter(r) && (r != '_') {
+				fmt.Println(string(r))
 				panic(fmt.Sprintf("%s must only contain alphanumeric and underscores", lhs))
 			}
 		}
