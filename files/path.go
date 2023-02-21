@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"runtime"
 )
 
 type PathType uint8
@@ -16,6 +17,14 @@ const (
 const (
 	DefaultFilePermissions os.FileMode = 0755
 )
+
+func PathSeparator() string {
+	if runtime.GOOS == "windows" {
+		return "\\"
+	} else {
+		return "/"
+	}
+}
 
 type Path struct {
 	value string
@@ -43,7 +52,7 @@ func (path Path) BackDir() Path {
 		panic("you cannot chain a directory path to a file")
 	}
 
-	return Path{path.value + "/../", DirectoryPath}
+	return Path{path.value + PathSeparator() + ".." + PathSeparator(), DirectoryPath}
 }
 
 func (path Path) Dir(directory string) Path {
@@ -51,7 +60,11 @@ func (path Path) Dir(directory string) Path {
 		panic("you cannot chain a directory to a file")
 	}
 
-	return Path{path.value + "/" + directory + "/", DirectoryPath}
+	prefix := path.value
+	if prefix != "" {
+		prefix += PathSeparator()
+	}
+	return Path{prefix + directory + PathSeparator(), DirectoryPath}
 }
 
 func (path Path) File(file string) Path {
