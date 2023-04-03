@@ -98,29 +98,33 @@ func (environment *Environment) parse(path string) {
 	}
 }
 
-func (environment *Environment) LoadVariables() {
+func (environment *Environment) LoadVariables(path ...string) {
 
-	dir := WorkingDirectory()
+	if len(path) == 1 {
+		environment.parse(path[0])
+	} else {
+		dir := WorkingDirectory()
 
-	f, err := os.Open(dir)
-	if err != nil {
-		panic(err)
-	}
-
-	files, err := f.ReadDir(0)
-	if err != nil {
-		panic(err)
-	}
-
-	envFilePath := dir + "/"
-	for _, file := range files {
-		if strings.Contains(file.Name(), ".env") {
-			envFilePath += file.Name()
-			break
+		f, err := os.Open(dir)
+		if err != nil {
+			panic(err)
 		}
-	}
 
-	environment.parse(envFilePath)
+		files, err := f.ReadDir(0)
+		if err != nil {
+			panic(err)
+		}
+
+		envFilePath := dir + "/"
+		for _, file := range files {
+			if strings.Contains(file.Name(), ".env") {
+				envFilePath += file.Name()
+				break
+			}
+		}
+
+		environment.parse(envFilePath)
+	}
 }
 
 // GetEnvString
